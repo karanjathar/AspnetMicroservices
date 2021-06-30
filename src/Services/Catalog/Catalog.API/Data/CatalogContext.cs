@@ -22,9 +22,10 @@ namespace Catalog.API.Data
         public CatalogContext(IConfiguration configuration)
         {
             var client = new MongoClient(configuration.GetValue<string>("DatabaseSettings:ConnectionString"));
-            var database = client.GetDatabase(configuration.GetValue<string>("DatabaseSettings:ConnectionString"));
-            Products = database.GetCollection<Product>(configuration.GetValue<string>("DatabaseSettings:ConnectionString"));
-            CatalogContextSeed.SeedData(Products);
+            //var client = new MongoClient(configuration.GetSection("DatabaseSettings").GetSection("ConnectionString").Value);
+            var database = client.GetDatabase(configuration.GetValue<string>("DatabaseSettings:DatabaseName"));
+            Products = database.GetCollection<Product>(configuration.GetValue<string>("DatabaseSettings:CollectionName"));
+            //CatalogContextSeed.SeedData(Products);
         }
         public IMongoCollection<Product> Products { get; }
     }

@@ -1,6 +1,6 @@
 using System;
 
-namespace Basket.API
+namespace Discout.API
 {
     public class WeatherForecast
     {
