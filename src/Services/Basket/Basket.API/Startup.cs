@@ -1,9 +1,13 @@
+using Basket.API.GrpcServices;
 using Basket.API.Repository;
+using Discount.Grpcs;
+using MassTransit;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
@@ -32,11 +36,28 @@ namespace Basket.API
                 options.Configuration = Configuration.GetValue<string>("CacheSettings:ConnectionString");
             });
             services.AddScoped<IBasketRepository, BasketRepository>();
+           //services.AddGrpcClient<DiscountProtoService.DiscountProtoServiceClient>(c => c.Address = new Uri(Configuration["GrpcSetting:DiscountUrl"]));
+            services.AddAutoMapper(typeof(Startup));
+
+            services.AddGrpcClient<DiscountProtoService.DiscountProtoServiceClient>(c => c.Address = new Uri("http://localhost:5003"));
+            services.AddScoped<DiscountGrpcService>();
+
+            services.AddMassTransit(config => {
+                config.UsingRabbitMq((ctx, cfg) => {
+                    //cfg.Host(Configuration["EventBusSettings:HostAddress"]);
+                    cfg.Host("amqp://guest:guest@localhost:5672");
+                    cfg.UseHealthCheck(ctx);
+                });
+            });
+            //services.AddMassTransitHostedService();
             services.AddControllers();
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "Basket.API", Version = "v1" });
             });
+
+           // services.AddHealthChecks()
+                  // .AddRedis(Configuration["CacheSettings:ConnectionString"], "Redis Health", HealthStatus.Degraded);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

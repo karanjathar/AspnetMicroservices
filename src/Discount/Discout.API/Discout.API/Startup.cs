@@ -1,3 +1,4 @@
+using Discout.API.Repositories;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
@@ -27,6 +28,7 @@ namespace Discout.API
         {
 
             services.AddControllers();
+            services.AddScoped<IDiscountRepository, DiscountRepository>();
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "Discout.API", Version = "v1" });
@@ -49,6 +51,7 @@ namespace Discout.API
 
             app.UseEndpoints(endpoints =>
             {
+               
                 endpoints.MapControllers();
             });
         }
